@@ -91,6 +91,84 @@
   @media (max-width:900px){
     .board{grid-template-columns: 1fr}
   }
+
+  /* --- UPDATED Print styles --- */
+  @media print {
+    body {
+      background: #fff;
+      color: #000;
+      margin: 0;
+      padding: 0;
+    }
+    .wrap {
+      max-width: none;
+      margin: 0;
+      padding: 0;
+    }
+    /* Hide interactive elements */
+    .sub, .defbar, .controls, footer {
+      display: none;
+    }
+    /* Reset panel and photo styles */
+    .panel, .photo {
+      border: none;
+      box-shadow: none;
+      background: transparent;
+      padding: 0 12px;
+      min-height: 0;
+    }
+    .board {
+      /* Ensure 3-column layout prints */
+      grid-template-columns: 1fr 300px 1fr;
+      padding: 0;
+    }
+    h1, .panel h2 {
+      color: #000;
+      text-align: left;
+    }
+    h1 { text-align: center; }
+    .panel h2 .dot {
+      display: none; /* Hide colored dots */
+    }
+    /* Reset chip styles for the *columns* */
+    .chip.in-col,
+    .chip.in-col[data-type="appearance"],
+    .chip.in-col[data-type="character"] {
+      color: #000;
+      font-weight: 500;
+    }
+    
+    /* --- Styles for pools --- */
+    .pools {
+      margin-top: 24px;
+      padding: 0 12px; /* Match panel padding */
+    }
+    .row-label {
+      color: #000 !important; /* Override inline style */
+    }
+    .pool {
+      background: transparent;
+      border: 1px solid #aaa; /* A light border to group them */
+      padding: 8px;
+      min-height: 0;
+      page-break-inside: avoid; /* Try to keep pools from splitting */
+    }
+    /* Reset chip styles for the *pool* */
+    .pool .chip {
+      border: 1px solid #000;
+      background: #fff;
+      color: #000;
+      font-weight: 500;
+      padding: 2px 8px;
+    }
+    .pool .chip[data-type="appearance"],
+    .pool .chip[data-type="character"] {
+      border-color: #000;
+      color: #000;
+    }
+  }
+  /* --- End updated print styles --- */
+
 </style>
 </head>
 <body>
@@ -98,12 +176,10 @@
     <h1>Meet Colin!</h1>
     <p class="sub">Desktop: hover for definition, click to place. Smartboard/tablet: <strong>tap once</strong> to preview the meaning, <strong>tap again</strong> to place.</p>
 
-    <!-- Touch-friendly definition banner -->
     <div id="defBar" class="defbar" aria-live="polite">
       <span class="word">Tip</span><span class="sep">—</span><span class="def">Tap a word to preview its meaning.</span>
     </div>
 
-    <!-- Three-column board -->
     <div class="board" aria-label="Word bank board">
       <section class="panel appearance" aria-labelledby="app-title">
         <h2 id="app-title"><span class="dot"></span>External Appearance</h2>
@@ -120,7 +196,6 @@
       </section>
     </div>
 
-    <!-- Pools -->
     <div class="pools">
       <div>
         <div class="row-label" style="color:var(--appearance)">Appearance adjectives</div>
@@ -134,6 +209,7 @@
 
     <div class="controls">
       <button id="resetBtn" class="btn" type="button">Reset</button>
+      <button id="printBtn" class="btn" type="button">Print</button>
     </div>
 
     <footer>
@@ -196,7 +272,7 @@
     'reliable':'You can trust them.',
     'organized':'Keeps things tidy; plans well.',
     'motivated':'Wants to achieve goals.',
-    'curious':'Wants to learn more.',
+    'curious':'WWants to learn more.',
     'optimistic':'Expects good things.',
     'independent':'Can do things alone.',
     'reserved':'Quiet; doesn’t show feelings easily.',
@@ -287,6 +363,8 @@
   }
 
   $('#resetBtn').addEventListener('click', populatePools);
+  
+  $('#printBtn').addEventListener('click', () => window.print());
 
   // init
   populatePools();
