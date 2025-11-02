@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Meet Colin!</title>
+<style>
+  :root{
+    --appearance:#00247d; /* UK blue */
+    --character:#c8102e;  /* UK red */
+    --bg:#f8fafc;
+    --card:#ffffff;
+    --border:#e5e7eb;
+    --text:#111827;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial; color:var(--text); background:var(--bg)}
+  h1{margin:16px auto 6px; text-align:center; color:var(--appearance)}
+  .sub{margin:0 auto 8px; text-align:center; color:#475569}
+  .wrap{max-width:1100px; margin:0 auto; padding:0 16px 28px}
+
+  /* Definition banner (touch-friendly) */
+  .defbar{
+    max-width:1100px; margin:0 auto 14px; padding:8px 12px;
+    background:#fff; border-left:6px solid #16a34a; border:1px solid var(--border); border-radius:8px;
+    color:#0f172a; min-height:42px; display:flex; align-items:center;
+  }
+  .defbar .word{font-weight:800}
+  .defbar .sep{opacity:.4; padding:0 6px}
+
+  /* Board (three columns) */
+  .board{
+    display:grid; gap:12px;
+    grid-template-columns: 1fr minmax(240px, 360px) 1fr;
+    align-items:start;
+  }
+  .panel{
+    background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px;
+    min-height:280px;
+  }
+  .panel h2{
+    margin:0 0 8px; font-size:18px; line-height:1.2; display:flex; align-items:center; gap:8px
+  }
+  .panel h2 .dot{width:10px; height:10px; border-radius:999px; display:inline-block}
+  .panel.appearance h2{color:var(--appearance)}
+  .panel.appearance h2 .dot{background:var(--appearance)}
+  .panel.character h2{color:var(--character)}
+  .panel.character h2 .dot{background:var(--character)}
+  .panel ul{margin:0; padding-left:18px}
+  .panel li{margin:2px 0}
+
+  /* Image column */
+  .photo{
+    background:var(--card); border:1px solid var(--border); border-radius:12px; padding:8px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .photo img{max-width:100%; height:auto; border-radius:8px; display:block}
+
+  /* Pools */
+  .pools{margin-top:16px; display:grid; gap:10px}
+  .row-label{font-weight:700; margin:0 0 6px}
+  .pool{
+    background:var(--card); border:1px solid var(--border); border-radius:12px; padding:10px; display:flex; flex-wrap:wrap; gap:8px;
+    min-height:56px;
+  }
+  .chip{
+    border:2px solid; background:#fff; border-radius:999px; padding:4px 10px; font-weight:600; cursor:pointer;
+    user-select:none; transition:transform .06s ease;
+  }
+  .chip:active{transform:scale(.98)}
+  .chip[data-type="appearance"]{border-color:var(--appearance); color:var(--appearance)}
+  .chip[data-type="character"]{border-color:var(--character); color:var(--character)}
+
+  /* chip style when parked in a column list (still clickable to return) */
+  .chip.in-col{
+    border:none; padding:0; background:transparent; font-weight:600;
+  }
+  .chip.in-col[data-type="appearance"]{color:var(--appearance)}
+  .chip.in-col[data-type="character"]{color:var(--character)}
+
+  .controls{display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:12px}
+  .btn{
+    background:#fff; border:2px solid var(--appearance); color:var(--appearance);
+    border-radius:10px; padding:8px 14px; font-weight:700; cursor:pointer; height:40px;
+  }
+
+  footer{
+    margin:18px 0 8px; text-align:center; font-size:12px; color:#0f172a;
+  }
+
+  @media (max-width:900px){
+    .board{grid-template-columns: 1fr}
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Meet Colin!</h1>
+    <p class="sub">Desktop: hover for definition, click to place. Smartboard/tablet: <strong>tap once</strong> to preview the meaning, <strong>tap again</strong> to place.</p>
+
+    <!-- Touch-friendly definition banner -->
+    <div id="defBar" class="defbar" aria-live="polite">
+      <span class="word">Tip</span><span class="sep">—</span><span class="def">Tap a word to preview its meaning.</span>
+    </div>
+
+    <!-- Three-column board -->
+    <div class="board" aria-label="Word bank board">
+      <section class="panel appearance" aria-labelledby="app-title">
+        <h2 id="app-title"><span class="dot"></span>External Appearance</h2>
+        <ul id="appearanceList"></ul>
+      </section>
+
+      <figure class="photo" aria-label="Colin image">
+        <img src="image.png" alt="Full-body photo of a teenage student in a grey hoodie, jeans and white sneakers, holding a red notebook in a school corridor." />
+      </figure>
+
+      <section class="panel character" aria-labelledby="char-title">
+        <h2 id="char-title"><span class="dot"></span>Character</h2>
+        <ul id="characterList"></ul>
+      </section>
+    </div>
+
+    <!-- Pools -->
+    <div class="pools">
+      <div>
+        <div class="row-label" style="color:var(--appearance)">Appearance adjectives</div>
+        <div id="appearancePool" class="pool" aria-label="Appearance pool"></div>
+      </div>
+      <div>
+        <div class="row-label" style="color:var(--character)">Character adjectives</div>
+        <div id="characterPool" class="pool" aria-label="Character pool"></div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button id="resetBtn" class="btn" type="button">Reset</button>
+    </div>
+
+    <footer>
+      ✨✍️ Created by Panagiotis Domvros, English and Drama Teacher, All Rights Reserved ✍️✨
+    </footer>
+  </div>
+
+<script>
+  // Adjective lists
+  const APPEARANCE_WORDS = [
+    'youthful','teenage','medium-height','average-build','slim','athletic',
+    'curly-haired','wavy-haired','brown-haired','fresh-faced','smiling',
+    'tidy','casual','hoodie-clad','denim-clad','backpack-wearing','sneakered',
+    'clean-cut','neat','relaxed-looking'
+  ];
+
+  const CHARACTER_WORDS = [
+    'friendly','approachable','confident','calm','cheerful','easy-going',
+    'thoughtful','polite','studious','diligent','responsible','reliable',
+    'organized','motivated','curious','optimistic','independent','reserved',
+    'shy','focused'
+  ];
+
+  // Simple hover explanations (tooltips)
+  const DEFINITIONS = {
+    // Appearance
+    'youthful':'Looking young.',
+    'teenage':'Around 13–19 years old.',
+    'medium-height':'Not short, not tall.',
+    'average-build':'Typical body size.',
+    'slim':'Thin in a healthy way.',
+    'athletic':'Fit and strong-looking.',
+    'curly-haired':'Hair with curls.',
+    'wavy-haired':'Hair with soft waves.',
+    'brown-haired':'Hair that is brown.',
+    'fresh-faced':'Young and healthy-looking.',
+    'smiling':'With a smile.',
+    'tidy':'Neat and clean.',
+    'casual':'Relaxed, informal clothes.',
+    'hoodie-clad':'Wearing a hoodie.',
+    'denim-clad':'Wearing jeans.',
+    'backpack-wearing':'Wearing a backpack.',
+    'sneakered':'Wearing trainers/sneakers.',
+    'clean-cut':'Neat, well-groomed.',
+    'neat':'Organised and clean-looking.',
+    'relaxed-looking':'Seems calm; not tense.',
+
+    // Character
+    'friendly':'Kind and nice to people.',
+    'approachable':'Easy to talk to.',
+    'confident':'Sure of themself.',
+    'calm':'Quiet and not stressed.',
+    'cheerful':'Happy and positive.',
+    'easy-going':'Relaxed; not strict.',
+    'thoughtful':'Thinks about others; careful.',
+    'polite':'Has good manners.',
+    'studious':'Studies a lot.',
+    'diligent':'Works carefully and hard.',
+    'responsible':'Does what they should.',
+    'reliable':'You can trust them.',
+    'organized':'Keeps things tidy; plans well.',
+    'motivated':'Wants to achieve goals.',
+    'curious':'Wants to learn more.',
+    'optimistic':'Expects good things.',
+    'independent':'Can do things alone.',
+    'reserved':'Quiet; doesn’t show feelings easily.',
+    'shy':'Nervous with new people.',
+    'focused':'Pays attention; not easily distracted.'
+  };
+
+  const $ = (sel) => document.querySelector(sel);
+  const defWord = $('#defBar .word');
+  const defText = $('#defBar .def');
+
+  const pools = {
+    appearance: $('#appearancePool'),
+    character: $('#characterPool')
+  };
+  const columns = {
+    appearance: $('#appearanceList'),
+    character: $('#characterList')
+  };
+
+  function showDefinition(word){
+    defWord.textContent = word;
+    defText.textContent = DEFINITIONS[word] || 'Click to move this word.';
+  }
+
+  function moveChip(btn, type){
+    if(btn.parentElement === pools[type]){
+      // move into column list
+      const li = document.createElement('li');
+      btn.classList.add('in-col');
+      li.appendChild(btn);
+      columns[type].appendChild(li);
+    } else {
+      // return to pool
+      btn.classList.remove('in-col');
+      if(btn.parentElement && btn.parentElement.tagName === 'LI'){
+        btn.parentElement.remove();
+      }
+      pools[type].appendChild(btn);
+    }
+  }
+
+  function makeChip(word, type){
+    const b = document.createElement('button');
+    b.className = 'chip';
+    b.textContent = word;
+    b.setAttribute('data-type', type);
+    b.setAttribute('type','button');
+
+    // Desktop hover/focus: show definition
+    b.title = (DEFINITIONS[word] || 'Click to move this word.');
+    b.addEventListener('mouseenter', ()=> showDefinition(word));
+    b.addEventListener('focus', ()=> showDefinition(word));
+
+    // Pointer logic:
+    // - Mouse: single click moves immediately (with hover already showing meaning).
+    // - Touch/smartboard: first tap shows definition (preview mode),
+    //   second tap within 1.5s moves the chip.
+    let tapTimer = null;
+    b.addEventListener('pointerup', (e)=>{
+      if(e.pointerType === 'mouse'){
+        moveChip(b, type);
+        return;
+      }
+      // touch / pen
+      if(b.dataset.preview === '1'){
+        b.dataset.preview = '';
+        clearTimeout(tapTimer);
+        moveChip(b, type);
+      } else {
+        b.dataset.preview = '1';
+        showDefinition(word);
+        tapTimer = setTimeout(()=>{ b.dataset.preview=''; }, 1500);
+      }
+    }, {passive:true});
+
+    return b;
+  }
+
+  function populatePools(){
+    pools.appearance.innerHTML = '';
+    pools.character.innerHTML = '';
+    columns.appearance.innerHTML = '';
+    columns.character.innerHTML = '';
+
+    APPEARANCE_WORDS.forEach(w => pools.appearance.appendChild(makeChip(w,'appearance')));
+    CHARACTER_WORDS.forEach(w => pools.character.appendChild(makeChip(w,'character')));
+  }
+
+  $('#resetBtn').addEventListener('click', populatePools);
+
+  // init
+  populatePools();
+</script>
+</body>
+</html>
