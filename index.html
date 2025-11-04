@@ -15,7 +15,30 @@
   }
   *{box-sizing:border-box}
   body{margin:0; font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial; color:var(--text); background:var(--bg)}
-  h1{margin:16px auto 6px; text-align:center; color:var(--appearance)}
+  
+  /* --- MODIFIED H1 --- */
+  h1{
+    margin:16px auto 6px; 
+    text-align:center; 
+    color:var(--appearance);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: left;
+    font-size: 2.0rem; 
+  }
+  
+  /* --- ADDED LOGO STYLE --- */
+  .header-logo {
+      height: 120px;
+      width: 120px;
+      margin-right: 20px;
+      border-radius: 50%;
+      border: none;
+      flex-shrink: 0;
+  }
+  /* --- END MODIFICATIONS --- */
+  
   .sub{margin:0 auto 8px; text-align:center; color:#475569}
   .wrap{max-width:1100px; margin:0 auto; padding:0 16px 28px}
 
@@ -106,7 +129,7 @@
       padding: 0;
     }
     /* Hide interactive elements */
-    .sub, .defbar, .controls, footer {
+    .sub, .defbar, .controls, footer, .header-logo { /* Also hide logo on print */
       display: none;
     }
     /* Reset panel and photo styles */
@@ -125,6 +148,7 @@
     h1, .panel h2 {
       color: #000;
       text-align: left;
+      justify-content: center; /* Center print h1 */
     }
     h1 { text-align: center; }
     .panel h2 .dot {
@@ -173,7 +197,10 @@
 </head>
 <body>
   <div class="wrap">
-    <h1>Meet Colin!</h1>
+    <h1>
+      <img src="pdhub-logo.png" alt="PD Hub Logo" class="header-logo">
+      Meet Colin!
+    </h1>
     <p class="sub">Desktop: hover for definition, click to place. Smartboard/tablet: <strong>tap once</strong> to preview the meaning, <strong>tap again</strong> to place.</p>
 
     <div id="defBar" class="defbar" aria-live="polite">
